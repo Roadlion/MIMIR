@@ -2,16 +2,16 @@
 **Market Intelligence & Macro Indicator Reactor**
 
 ## FUNCTION
-1. **INGEST:** Scrape global/regional financial news.
-2. **ANALYZE:** Deterministic sentiment and entity extraction.
-3. **INFER:** Map macro signals to Thai FX/Rates volatility.
-4. **DISPLAY:** Real-time operational dashboard.
+1. **INGEST:** Scrape global/regional financial news from RSS feeds.
+2. **ANALYZE:** Deterministic sentiment and entity/topic extraction.
+3. **INFER:** Applies rules based on topics and entities in the headline.
+4. **DISPLAY:**  Display data inferred from impact rules.
 
 ## STACK
 * Python
-* Asyncio / BS4
-* SpaCy / VADER
+* FinBERT
+* Plotly Express
 * Streamlit
 
 ## USAGE
-`python run_mimir.py`
+Run orchestrator.py in src
