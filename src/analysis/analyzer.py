@@ -1,11 +1,11 @@
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 import pandas as pd
 import os
-from tagger import auto_tag_entity, auto_tag_topic
+from tagger import auto_tag_entity, auto_tag_topic, apply_default_entities
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch
 import torch.nn.functional as F
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
 
 #import FINBERT
 model_name = "ProsusAI/finbert"
@@ -36,7 +36,7 @@ csv_abs_path = os.path.abspath(csv_rel_path)
 
 df = pd.read_csv(csv_abs_path)
 
-print("Running FinBERT (this might take a  while)...")
+print("Running FinBERT (this might take a while)...")
 df["title_score"] = df["title"].apply(get_sentiment)
 
 print("Tagging Entities...")
@@ -44,6 +44,12 @@ df["entities"] = df["title"].apply(auto_tag_entity)
 
 print("Tagging Topics...")
 df["topics"] = df["title"].apply(auto_tag_topic)
+
+print("Applying Default Entity Mapping...")
+df["entities"] = df.apply(
+    lambda row: apply_default_entities(row["topics"], row["entities"]), 
+    axis=1
+)
 
 #Save the results
 df.to_csv('data/processed/merged_analyzed_news.csv', index=False,  encoding='utf-8-sig')

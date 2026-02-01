@@ -57,3 +57,19 @@ impact_abs = os.path.abspath(impact_rel)
 #Run Impact Engine
 print("Running Impact Engine...")
 subprocess.run(['python', impact_abs])
+
+#Get Aggregator Path
+agg_rel = os.path.join(script_dir, 'aggregation', 'aggregator.py')
+agg_abs = os.path.abspath(agg_rel)
+
+#Run Aggregator
+print("Running Aggregator...")
+subprocess.run(['python', agg_abs])
+
+#Get Dashboard Path
+db_rel = os.path.join(script_dir, 'dashboard', 'dashboard.py')
+db_abs = os.path.abspath(db_rel)
+
+#Run Dashboard
+print("Opening Dashboard...")
+subprocess.run(['streamlit', 'run', db_abs])

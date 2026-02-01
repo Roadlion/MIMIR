@@ -57,4 +57,11 @@ def auto_tag_topic(headline: str):
         
     return topics_found
 
-auto_tag_entity("ECB’s Cipollone Says Uncertainty May Increase, Hitting Recovery")
+def apply_default_entities(topics, entities):
+    from keywords import DEFAULT_ENTITY_MAP
+    if not entities:  # No country detected
+        for topic in topics:
+            if topic in DEFAULT_ENTITY_MAP:
+                entities.append(DEFAULT_ENTITY_MAP[topic])
+                break  # Add only one default
+    return entities
