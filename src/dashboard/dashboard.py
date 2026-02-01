@@ -174,14 +174,6 @@ def render_leaderboard(df, title):
     fig.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     
     st.plotly_chart(fig, use_container_width=True)
-    
-    # Optional: Show source headlines below chart
-    with st.expander("View Source Headlines"):
-        for _, row in df_sorted.iterrows():
-            st.write(f"**{row['asset']}** ({row['dominant_direction']})")
-            for headline in row['source_headlines']:
-                st.write(f"- {headline}")
-            st.markdown("---")
 
 # --- TAB CONTENT ---
 
@@ -225,18 +217,54 @@ with tab8:
     render_leaderboard(signals, "All Aggregated Signals")
 
 # 2. Headlines feed
+import ast # Add this to your imports at the top of the file
+
 st.header("Recent Headlines")
+
 for _, row in articles.tail(20).iterrows():
-    impacts = row['impacts']
+    raw_impacts = row['impacts']
 
-    if isinstance(impacts, str):
-        if impacts == "[]" or impacts == "":
+    # --- IMPACT PREPARATION ---
+    parsed_impacts = []
+    
+    # Check if string representation of a list
+    if isinstance(raw_impacts, str):
+        if raw_impacts == "[]" or raw_impacts == "":
             continue
-    elif isinstance(impacts, list):
-        if not impacts:  # Empty list
+        try:
+            # Convert string "[{...}]" to actual list
+            parsed_impacts = ast.literal_eval(raw_impacts)
+        except (ValueError, SyntaxError):
             continue
+            
+    # Check if already a list
+    elif isinstance(raw_impacts, list):
+        if not raw_impacts:
+            continue
+        parsed_impacts = raw_impacts
     else:
-        continue  # Unexpected type
+        continue
 
-    st.write(f"[{row['published']}, Sentiment Score: {row['title_score']}] **{row['title']}**")
-    st.caption(f"Impacts: {row['impacts']}")
+    # --- DISPLAY HEADLINE ---
+    st.markdown(f"**{row['title']}**")
+    st.caption(f":gray[{row['published']}] • Sentiment: `{row['title_score']:.2f}`")
+
+    # --- DISPLAY FORMATTED IMPACTS ---
+    # We only show the top 2 impacts to keep the feed clean
+    for impact in parsed_impacts[:2]: 
+        asset = impact.get('asset', 'UNKNOWN')
+        direction = impact.get('direction', 'neutral')
+        
+        # Visual cue for direction
+        if direction == 'positive':
+            direction_icon = "🟢"
+        elif direction == 'negative':
+            direction_icon = "🔴"
+        else:
+            direction_icon = "⚪"
+
+        # Create a nice looking block for each impact
+        with st.container():
+            st.markdown(f"{direction_icon} **{asset}**: {impact.get('impact', 'No description')}")
+    
+    st.markdown("---") # Separator line
